@@ -95,6 +95,7 @@
             from { transform: translate(0, 0) rotate(0deg) scale(1); }
             to { transform: translate(200px, 100px) rotate(180deg) scale(1.3); }
         }
+
         .dropdown { position: relative; display: inline-block; }
         .dropdown-content { display: none; position: absolute; background-color: #111827; min-width: 240px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5); z-index: 1; border-radius: 0.5rem; border: 1px solid var(--border-color); padding: 0.5rem 0; animation: fadeInUp 0.3s ease; }
         .dropdown-content a { color: var(--text-secondary); padding: 12px 16px; text-decoration: none; display: flex; align-items: center; font-size: 0.875rem; transition: all 0.2s ease; }
@@ -182,8 +183,44 @@
                              </div>
                              <p id="total-pnl" class="text-3xl font-bold mt-2">$0.00</p>
                         </div>
-                        <!-- Stat Card (lanjutan markup dari Part 2) -->
-                        <!-- ... lanjut content ... -->
+                         <!-- Stat Card -->
+                        <div class="panel rounded-xl p-6 animate-fade-in-up" style="animation-delay: 100ms;">
+                             <div class="flex justify-between items-center text-gray-400">
+                                <p class="text-sm font-medium">Win Rate</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                             </div>
+                            <p id="win-rate" class="text-3xl font-bold mt-2">0%</p>
+                        </div>
+                         <!-- Stat Card -->
+                        <div class="panel rounded-xl p-6 animate-fade-in-up" style="animation-delay: 200ms;">
+                            <div class="flex justify-between items-center text-gray-400">
+                                <p class="text-sm font-medium">Total Trades</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <p id="total-trades" class="text-3xl font-bold mt-2">0</p>
+                        </div>
+                         <!-- Stat Card -->
+                        <div class="panel rounded-xl p-6 animate-fade-in-up" style="animation-delay: 300ms;">
+                            <div class="flex justify-between items-center text-gray-400">
+                                <p class="text-sm font-medium">Saldo Saat Ini</p>
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.158-.103.346-.196.567-.267v1.698a2.5 2.5 0 00-1.168-.217c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5c.396 0 .762-.092 1.099-.254v1.698c-.433.15-.9.256-1.4.256-2.21 0-4-1.79-4-4s1.79-4 4-4c.465 0 .907.08 1.32.231l.414-.415A4.982 4.982 0 0110 4a5 5 0 015 5c0 .63-.114 1.23-.319 1.785l.414.414c.15-.413.235-.856.235-1.319a6 6 0 00-6-6c-1.383 0-2.653.473-3.666 1.259l.415.415z" /><path d="M12 10.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z" /></svg>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <p id="current-equity" class="text-3xl font-bold mt-2">$0.00</p>
+                                <button onclick="promptAddFunds()" title="Tambah Saldo" class="text-gray-400 hover:text-white transition-colors duration-200 bg-gray-700/50 hover:bg-[var(--accent-cyan)]/20 hover:text-[var(--accent-cyan)] rounded-full p-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        <div class="lg:col-span-3 panel rounded-xl p-6 flex flex-col animate-fade-in-up" style="animation-delay: 400ms;">
+                            <h2 class="text-lg font-semibold text-white mb-4">Kurva Ekuitas</h2>
+                            <div class="relative flex-grow h-80">
+                                <canvas id="equityCurveChart"></canvas>
+                            </div>
+                        </div>
                         <div class="lg:col-span-2 panel rounded-xl p-6 flex flex-col animate-fade-in-up" style="animation-delay: 500ms;">
                             <h2 class="text-lg font-semibold text-white mb-4">Performa Strategi</h2>
                             <div class="relative flex-grow h-80">
@@ -299,11 +336,9 @@
     let currentJournalNameEl = null;
     let journalSwitcherEl = null;
 
-    // --- DATA MANAGEMENT (FIXED) ---
+    // --- DATA MANAGEMENT ---
     function loadData() {
-        // load journals metadata
         const journalsMeta = JSON.parse(localStorage.getItem('tradingJournals')) || null;
-
         if (journalsMeta && Object.keys(journalsMeta.allJournals).length > 0) {
             journals = journalsMeta;
             currentJournalId = journals.currentJournalId;
@@ -317,54 +352,36 @@
             localStorage.setItem(`journal_${firstJournalId}`, JSON.stringify({ startingEquity: 0, trades: [] }));
             currentJournalId = firstJournalId;
         }
-
-        // FIX: always load the data for the currently active journal
-        const currentStored = JSON.parse(localStorage.getItem(`journal_${currentJournalId}`)) || { startingEquity: 0, trades: [] };
-        startingEquity = currentStored.startingEquity || 0;
-        trades = currentStored.trades || [];
+        const currentJournalData = JSON.parse(localStorage.getItem(`journal_${currentJournalId}`)) || { startingEquity: 0, trades: [] };
+        startingEquity = currentJournalData.startingEquity;
+        trades = currentJournalData.trades;
         trades.sort((a, b) => a.timestamp - b.timestamp);
     }
-
     function saveData() {
-        // FIX: save only the active journal's data
         const dataToSave = { startingEquity, trades };
         localStorage.setItem(`journal_${currentJournalId}`, JSON.stringify(dataToSave));
         localStorage.setItem('tradingJournals', JSON.stringify(journals));
     }
 
-    // --- JOURNAL MANAGEMENT (FIXED) ---
+    // --- JOURNAL MANAGEMENT ---
     function switchJournal(journalId) {
         if (journalId === currentJournalId) return;
-
         currentJournalId = journalId;
         journals.currentJournalId = journalId;
-        // persist journals meta
-        localStorage.setItem('tradingJournals', JSON.stringify(journals));
-
-        // FIX: load the selected journal's specific data into the global state
-        const stored = JSON.parse(localStorage.getItem(`journal_${journalId}`)) || { startingEquity: 0, trades: [] };
-        startingEquity = stored.startingEquity || 0;
-        trades = stored.trades || [];
-        trades.sort((a, b) => a.timestamp - b.timestamp);
-
+        saveData();
+        loadData();
         renderJournalSwitcher();
         renderTradeLog();
         updateDashboard();
     }
-
     function createJournal(name, type) {
         if (!name.trim()) return;
         const newId = `j_${Date.now()}`;
         journals.allJournals[newId] = { name: name.trim(), type: type };
-
-        // FIX: ensure new journal has its own storage slot
         localStorage.setItem(`journal_${newId}`, JSON.stringify({ startingEquity: 0, trades: [] }));
-        localStorage.setItem('tradingJournals', JSON.stringify(journals));
-
         switchJournal(newId);
         closeModal();
     }
-
     function renameJournal(journalId, newName) {
         if (!newName.trim()) return;
         journals.allJournals[journalId].name = newName.trim();
@@ -387,7 +404,7 @@
         renderTradeLog();
         renderManageJournalModal();
     }
-
+    
     // --- UI & RENDERING ---
     function switchView(viewName) {
         Object.values(views).forEach(v => v.classList.add('hidden'));
@@ -396,7 +413,7 @@
         navButtons[viewName]?.classList.add('nav-active');
         if(viewName === 'dashboard') updateDashboard();
     }
-
+    
     function removeChartImage() {
         document.getElementById('image-preview-container').classList.add('hidden');
         document.getElementById('image-preview').src = '';
@@ -739,7 +756,6 @@
             }
         });
 
-        // load initial data for journals and UI
         loadData();
         renderJournalSwitcher();
         renderTradeLog();
@@ -749,3 +765,5 @@
 </script>
 </body>
 </html>
+
+
